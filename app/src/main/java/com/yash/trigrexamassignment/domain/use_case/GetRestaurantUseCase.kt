@@ -9,7 +9,7 @@ import javax.inject.Inject
 class GetRestaurantUseCase @Inject constructor(
     private val restaurantRepository: RestaurantRepository,
 ) {
-    suspend operator fun invoke(category: String): Flow<PagingData<Restaurant>> {
+     operator fun invoke(category: String): Flow<PagingData<Restaurant>> {
         return restaurantRepository.getRestaurants(category)
     }
 }

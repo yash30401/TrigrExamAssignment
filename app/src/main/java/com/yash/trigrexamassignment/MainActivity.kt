@@ -14,6 +14,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.yash.trigrexamassignment.presentation.RestaurantScreen
 import com.yash.trigrexamassignment.ui.theme.TrigrExamAssignmentTheme
 import dagger.hilt.android.AndroidEntryPoint
+import okhttp3.OkHttpClient
+import java.util.concurrent.TimeUnit
+
+val okHttpClient = OkHttpClient.Builder()
+    .connectTimeout(30, TimeUnit.SECONDS)
+    .readTimeout(30, TimeUnit.SECONDS)
+    .writeTimeout(30, TimeUnit.SECONDS)
+    .build()
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -22,7 +30,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             TrigrExamAssignmentTheme {
-                RestaurantScreen("All")
+                RestaurantScreen()
             }
         }
     }

@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
@@ -22,6 +23,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
+import org.junit.experimental.categories.Categories
 import javax.inject.Inject
 
 @HiltViewModel
@@ -33,21 +35,20 @@ class RestaurantViewModel @Inject constructor(
     private val _tab = MutableStateFlow("Recommended")
 
     val restaurants: Flow<PagingData<Restaurant>> =
-        combine(_category, _tab) { category, tab ->
-            getRestaurantsUseCase(category).map { pagingData ->
-                pagingData.filter {
-                    when (tab) {
-                        "Recommended" -> it.rating > 4.0
-                        "Popular" -> it.rating > 4.2
-                        else -> true
-                    }
-                }
+        _category
+            .flatMapLatest { category ->
+                getRestaurantsUseCase(category)
             }
-        }.flatMapLatest { it }
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5_000),
+                initialValue = PagingData.empty()
+            )
+
 
     fun onEvent(event: UiEvent) {
         when (event) {
-            is UiEvent.onCategoryChange -> _category.value = event.category
+            is UiEvent.onCategoryChange -> {_category.value = event.category}
             is UiEvent.onTabChange -> _tab.value = event.tab
         }
     }

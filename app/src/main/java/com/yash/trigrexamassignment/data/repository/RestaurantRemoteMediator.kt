@@ -1,5 +1,6 @@
 package com.yash.trigrexamassignment.data.repository
 
+import android.util.Log
 import androidx.paging.ExperimentalPagingApi
 import androidx.paging.LoadType
 import androidx.paging.PagingState
@@ -26,22 +27,31 @@ class RestaurantRemoteMediator(
         val page = when (loadType) {
             LoadType.REFRESH -> 1
             LoadType.PREPEND -> return MediatorResult.Success(endOfPaginationReached = true)
-            LoadType.APPEND -> (state.pages.lastOrNull()?.data?.size ?: 0) / state.config.pageSize + 1
+            LoadType.APPEND -> (state.pages.lastOrNull()?.data?.size
+                ?: 0) / state.config.pageSize + 1
         }
 
         return try {
-            val response = restaurantApi.getRestaurants(category, page, state.config.pageSize)
-            val entities = response.restaurants.map { it.toEntity(category) }
+            try {
+
+                val response = restaurantApi.getRestaurants(category, page, state.config.pageSize)
+                val entities = response.restaurants.map { it.toEntity(category) }
 
 
-            db.withTransaction {
-                if (loadType == LoadType.REFRESH) {
-                    db.dao.clearCategory(category)
+                db.withTransaction {
+                    if (loadType == LoadType.REFRESH) {
+                        db.dao.clearCategory(category)
+                    }
+                    db.dao.insertAll(entities)
                 }
-                db.dao.insertAll(entities)
+                Log.d("FAKESERVERERROR", response.toString())
+                MediatorResult.Success(endOfPaginationReached = entities.isEmpty())
+
+            } catch (e: kotlin.Exception) {
+                Log.d("FAKESERVERERROR", e.toString())
+                MediatorResult.Error(e)
             }
 
-            MediatorResult.Success(endOfPaginationReached = entities.isEmpty())
 
         } catch (e: Exception) {
             MediatorResult.Error(e)

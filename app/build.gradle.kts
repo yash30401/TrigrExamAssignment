@@ -130,6 +130,8 @@ dependencies {
     implementation("androidx.paging:paging-runtime:$paging_version")
     implementation("androidx.paging:paging-compose:1.0.0-alpha20")
 
+    implementation("com.github.bumptech.glide:compose:1.0.0-beta01")
+
 }
 
 

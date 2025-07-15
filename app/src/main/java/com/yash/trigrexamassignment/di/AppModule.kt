@@ -2,6 +2,7 @@ package com.yash.trigrexamassignment.di
 
 import android.app.Application
 import android.content.Context
+import android.util.Log
 import androidx.room.Room
 import com.yash.trigrexamassignment.data.local.AppDatabase
 import com.yash.trigrexamassignment.data.local.RestaurantDao
@@ -10,6 +11,7 @@ import com.yash.trigrexamassignment.data.remote.RestaurantApi
 import com.yash.trigrexamassignment.data.repository.RestaurantRepositoryImpl
 import com.yash.trigrexamassignment.domain.repository.RestaurantRepository
 import com.yash.trigrexamassignment.domain.use_case.GetRestaurantUseCase
+import com.yash.trigrexamassignment.okHttpClient
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -26,13 +28,23 @@ import javax.inject.Singleton
 object AppModule {
 
     @Provides
+    fun provideBaseUrl(): String {
+        return FakeApiServer.getBaseUrl()
+    }
+
+    @Provides
     @Singleton
-    fun provideApi(baseUrl:String): RestaurantApi {
+    fun provideRetrofit(baseUrl: String): Retrofit {
         return Retrofit.Builder()
             .baseUrl(baseUrl)
+            .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
-            .create(RestaurantApi::class.java)
+    }
+
+    @Provides
+    fun provideRestaurantApi(retrofit: Retrofit): RestaurantApi {
+        return retrofit.create(RestaurantApi::class.java)
     }
 
     @Provides
@@ -45,7 +57,6 @@ object AppModule {
     fun provideDao(db: AppDatabase): RestaurantDao = db.dao
 
     @Provides
-    @Singleton
     fun getRestaurantRepository(
         restaurantApi: RestaurantApi,
         db: AppDatabase,
@@ -54,14 +65,9 @@ object AppModule {
     }
 
     @Provides
-    @Singleton
     fun provideGetReaturantUseCase(restaurantRepository: RestaurantRepository): GetRestaurantUseCase {
         return GetRestaurantUseCase(restaurantRepository)
     }
 
-    @Provides
-    @Singleton
-    fun provideBaseUrl(application: Application): String {
-        return FakeApiServer.getBaseUrl()
-    }
+
 }
