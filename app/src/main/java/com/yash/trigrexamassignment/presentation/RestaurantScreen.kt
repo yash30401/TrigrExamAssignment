@@ -23,14 +23,20 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ListAlt
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.ListAlt
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -43,6 +49,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -83,7 +90,14 @@ fun RestaurantScreen(
 
     var searchQuery by remember { mutableStateOf("") }
 
+    val bottomNavItems = listOf(
+        BottomNavItem("Home", Icons.Filled.Home, "home_route"),
+        BottomNavItem("Orders", Icons.Filled.ListAlt, "orders_route"),
+        BottomNavItem("Settings", Icons.Filled.Settings, "settings_route")
+    )
 
+    // State for bottom navigation selected item
+    var selectedBottomNavItem by remember { mutableIntStateOf(0) }
 
     Scaffold(
         topBar = {
@@ -113,6 +127,29 @@ fun RestaurantScreen(
                 )
                 Spacer(Modifier.height(20.dp))
 
+            }
+        },
+
+        bottomBar = {
+            NavigationBar(
+                modifier = Modifier.fillMaxWidth(),
+                containerColor = MaterialTheme.colorScheme.surfaceContainerLow // Use appropriate M3 color
+            ) {
+                bottomNavItems.forEachIndexed { index, item ->
+                    NavigationBarItem(
+                        selected = selectedBottomNavItem == index,
+                        onClick = {
+                            selectedBottomNavItem = index
+                            // In a real app, you would navigate here
+                            // navController.navigate(item.route) {
+                            //    popUpTo(navController.graph.startDestinationId)
+                            //    launchSingleTop = true
+                            // }
+                        },
+                        icon = { Icon(item.icon, contentDescription = item.title) },
+                        label = { Text(item.title) }
+                    )
+                }
             }
         }
     ) { paddingValues ->
