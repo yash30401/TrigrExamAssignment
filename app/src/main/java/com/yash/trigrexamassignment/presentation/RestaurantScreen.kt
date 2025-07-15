@@ -298,6 +298,7 @@ fun RestaurantScreen(
     }
 }
 
+@OptIn(ExperimentalGlideComposeApi::class)
 @Composable
 fun RestaurantCard(restaurant: Restaurant) {
     Card(
@@ -307,8 +308,8 @@ fun RestaurantCard(restaurant: Restaurant) {
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
-            Image(
-                painter = painterResource(id = R.drawable.ic_launcher_foreground),
+            GlideImage(
+                model = restaurant.image_url,
                 contentDescription = restaurant.name,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.fillMaxSize()
