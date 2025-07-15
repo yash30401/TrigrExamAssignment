@@ -35,9 +35,21 @@ class RestaurantViewModel @Inject constructor(
     private val _tab = MutableStateFlow("Recommended")
 
     val restaurants: Flow<PagingData<Restaurant>> =
-        _category
-            .flatMapLatest { category ->
-                getRestaurantsUseCase(category)
+        _category.combine(_tab) { category, tab ->
+            Pair(category, tab)
+        }
+            .flatMapLatest { (category, tab) ->
+
+                val minRatingFilter: Double? = if (tab == "Popular") {
+                    4.3 // Apply filter for "Popular" tab
+                } else {
+                    null // No rating filter for other tabs (e.g., "Recommended")
+                }
+                if (minRatingFilter != null) {
+                    getRestaurantsUseCase.invoke(category).map { it.filter { it.rating > 4.5 } }
+                } else {
+                    getRestaurantsUseCase.invoke(category)
+                }
             }
             .stateIn(
                 scope = viewModelScope,
@@ -45,10 +57,12 @@ class RestaurantViewModel @Inject constructor(
                 initialValue = PagingData.empty()
             )
 
-
     fun onEvent(event: UiEvent) {
         when (event) {
-            is UiEvent.onCategoryChange -> {_category.value = event.category}
+            is UiEvent.onCategoryChange -> {
+                _category.value = event.category
+            }
+
             is UiEvent.onTabChange -> _tab.value = event.tab
         }
     }

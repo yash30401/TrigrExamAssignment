@@ -71,14 +71,19 @@ fun RestaurantScreen(
     // Trigger category change event
 
     var category by remember { mutableStateOf("All") }
+    var tabSelected by remember {
+        mutableStateOf(0)
+    }
 
-    LaunchedEffect(category) {
+    LaunchedEffect(category, tabSelected) {
         viewModel.onEvent(UiEvent.onCategoryChange(category))
     }
 
     val restaurants = viewModel.restaurants.collectAsLazyPagingItems()
 
     var searchQuery by remember { mutableStateOf("") }
+
+
 
     Scaffold(
         topBar = {
@@ -130,7 +135,7 @@ fun RestaurantScreen(
                                     .size(100.dp)
                                     .padding(5.dp)
                                     .clip(CircleShape)
-                                    .clickable{
+                                    .clickable {
                                         category = "All"
                                     },
                                 contentScale = ContentScale.Crop
@@ -148,7 +153,7 @@ fun RestaurantScreen(
                                     .size(100.dp)
                                     .padding(5.dp)
                                     .clip(CircleShape)
-                                    .clickable{
+                                    .clickable {
                                         category = "Pizza"
                                     },
                                 contentScale = ContentScale.Crop
@@ -166,7 +171,7 @@ fun RestaurantScreen(
                                     .size(100.dp)
                                     .padding(5.dp)
                                     .clip(CircleShape)
-                                    .clickable{
+                                    .clickable {
                                         category = "Burger"
                                     },
                                 contentScale = ContentScale.Crop
@@ -183,7 +188,8 @@ fun RestaurantScreen(
                                 modifier = Modifier
                                     .size(100.dp)
                                     .padding(5.dp)
-                                    .clip(CircleShape)  .clickable{
+                                    .clip(CircleShape)
+                                    .clickable {
                                         category = "Tacos"
                                     },
                                 contentScale = ContentScale.Crop
@@ -201,7 +207,7 @@ fun RestaurantScreen(
                                     .size(100.dp)
                                     .padding(5.dp)
                                     .clip(CircleShape)
-                                    .clickable{
+                                    .clickable {
                                         category = "Chinese"
                                     },
                                 contentScale = ContentScale.Crop
@@ -218,7 +224,8 @@ fun RestaurantScreen(
                                 modifier = Modifier
                                     .size(100.dp)
                                     .padding(5.dp)
-                                    .clip(CircleShape)  .clickable{
+                                    .clip(CircleShape)
+                                    .clickable {
                                         category = "Desserts"
                                     },
                                 contentScale = ContentScale.Crop
@@ -235,7 +242,8 @@ fun RestaurantScreen(
                                 modifier = Modifier
                                     .size(100.dp)
                                     .padding(5.dp)
-                                    .clip(CircleShape).clickable{
+                                    .clip(CircleShape)
+                                    .clickable {
                                         category = "Drinks"
                                     },
                                 contentScale = ContentScale.Crop
@@ -243,6 +251,30 @@ fun RestaurantScreen(
                             Text("Drinks")
                         }
                     }
+                }
+            }
+
+            item {
+                Row(modifier = Modifier.padding(10.dp)) {
+                    Text(
+                        "Recommended",
+                        fontSize = 17.sp,
+                        color = if (tabSelected == 0) Color.Black else Color.Gray,
+                        modifier = Modifier.clickable {
+                            tabSelected = 0
+                            viewModel.onEvent(UiEvent.onTabChange("Recommended"))
+                        }
+                    )
+                    Spacer(Modifier.width(20.dp))
+                    Text(
+                        "Popular",
+                        fontSize = 17.sp,
+                        color = if (tabSelected == 1) Color.Black else Color.Gray,
+                        modifier = Modifier.clickable {
+                            tabSelected = 1
+                            viewModel.onEvent(UiEvent.onTabChange("Popular"))
+                        }
+                    )
                 }
             }
 
